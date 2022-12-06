@@ -8,7 +8,7 @@ import Alert from '@mui/material/Alert';
 import Header from './Header';
 import Content from './Content';
 
-import { onMessage, saveLikedFormSubmission } from './service/mockServer';
+import { onMessage, saveLikedFormSubmission, fetchLikedFormSubmissions } from './service/mockServer';
 
 function App() {
   const vertical = 'bottom';
@@ -30,11 +30,18 @@ function App() {
     setCurrentMessageInfo(`${firstName} ${lastName} ${email}`);
   }
 
-  const handleLikeButton = () => {
+  const handleLikeButton = async () => {
     const likedMessage = { ...currentMessage };
     likedMessage.data.liked = true;
     setLikedSubmissions((prevState) => [...prevState, likedMessage]);
     setOpen(false);
+
+    const alertMessage = await saveLikedFormSubmission(likedMessage);
+    
+    if (alertMessage.status === 500) {
+      setAlertMessage(alertMessage);
+      setAlertToggle(true);
+    }
   }
 
   React.useEffect(() => {
@@ -42,16 +49,19 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    const sendSubmissions = async () => {
-      const alertMessage = await saveLikedFormSubmission(likedSubmissions);
-      if (alertMessage.status === 500) {
-        setAlertMessage(alertMessage);
+    const receiveSubmissions = async () => {
+      const result = await fetchLikedFormSubmissions();
+      if (result.status === 500) {
+        setAlertMessage(result);
         setAlertToggle(true);
+      } else {
+        const { formSubmissions } = result;
+        setLikedSubmissions(formSubmissions);
       }
-    }
-    
-    sendSubmissions();
-  }, [likedSubmissions]);
+    };
+
+    receiveSubmissions();
+  }, [])
 
   return (
     <>
