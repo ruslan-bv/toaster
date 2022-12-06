@@ -11,10 +11,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { createMockFormSubmission } from './service/mockServer';
 
 export default function Header() {
-  const onClickSubmission = () => {
-    createMockFormSubmission();
-  }
-
   return (
     <Box sx={{flexGrow: 1}}>
       <AppBar position="static">
@@ -34,7 +30,7 @@ export default function Header() {
             variant="contained"
             size="small"
             color="secondary"
-            onClick={onClickSubmission}
+            onClick={() => createMockFormSubmission()}
           >
             New Submission
           </Button>

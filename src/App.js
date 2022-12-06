@@ -4,6 +4,8 @@ import Snackbar from '@mui/material/Snackbar';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 import Alert from '@mui/material/Alert';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Header from './Header';
 import Content from './Content';
@@ -14,6 +16,7 @@ function App() {
   const vertical = 'bottom';
   const horizontal = 'right';
 
+  const [loadingState, setLoadingState] = React.useState(false);
   const [likedSubmissions, setLikedSubmissions] = React.useState([]);
 
   const [open, setOpen] = React.useState(false);
@@ -32,6 +35,7 @@ function App() {
 
   const handleLikeButton = async () => {
     try {
+      setLoadingState(true);
       const likedMessage = { ...currentMessage };
       likedMessage.data.liked = true;
       setOpen(false);
@@ -41,18 +45,23 @@ function App() {
     } catch (error) {
       setAlertMessage(error);
       setAlertToggle(true);
+    } finally {
+      setLoadingState(false);
     }
   }
 
   React.useEffect(() => {
     const receiveSubmissions = async () => {
       try {
+        setLoadingState(true);
         const result = await fetchLikedFormSubmissions();
         const { formSubmissions } = result;
         setLikedSubmissions(formSubmissions);
       } catch (error) {
         setAlertMessage(error);
         setAlertToggle(true);
+      } finally {
+        setLoadingState(false);
       }
     };
 
@@ -98,6 +107,12 @@ function App() {
               {alertMessage.status}: {alertMessage.message}
           </Alert>
         }
+        <Backdrop
+          sx={{ color: '#1976d2', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loadingState}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </Container>
     </>
   );
