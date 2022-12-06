@@ -31,37 +31,37 @@ function App() {
   }
 
   const handleLikeButton = async () => {
-    const likedMessage = { ...currentMessage };
-    likedMessage.data.liked = true;
-    setLikedSubmissions((prevState) => [...prevState, likedMessage]);
-    setOpen(false);
+    try {
+      const likedMessage = { ...currentMessage };
+      likedMessage.data.liked = true;
+      setOpen(false);
 
-    const alertMessage = await saveLikedFormSubmission(likedMessage);
-    
-    if (alertMessage.status === 500) {
-      setAlertMessage(alertMessage);
+      await saveLikedFormSubmission(likedMessage);
+      setLikedSubmissions((prevState) => [...prevState, likedMessage]);
+    } catch (error) {
+      setAlertMessage(error);
       setAlertToggle(true);
     }
   }
 
   React.useEffect(() => {
-    onMessage(showMessage);
-  }, []);
-
-  React.useEffect(() => {
     const receiveSubmissions = async () => {
-      const result = await fetchLikedFormSubmissions();
-      if (result.status === 500) {
-        setAlertMessage(result);
-        setAlertToggle(true);
-      } else {
+      try {
+        const result = await fetchLikedFormSubmissions();
         const { formSubmissions } = result;
         setLikedSubmissions(formSubmissions);
+      } catch (error) {
+        setAlertMessage(error);
+        setAlertToggle(true);
       }
     };
 
     receiveSubmissions();
   }, [])
+
+  React.useEffect(() => {
+    onMessage(showMessage);
+  }, []);
 
   return (
     <>
@@ -87,7 +87,7 @@ function App() {
         {
           alertToggle &&
           <Alert 
-            sx={{ left: '24px', right: 'auto', position: 'absolute' }}         
+            sx={{ left: '24px', right: 'auto', bottom: '24px', position: 'absolute' }}         
             action={
             <Button onClick={() => setAlertToggle(false)} color="inherit" size="small">
               <CloseIcon />
