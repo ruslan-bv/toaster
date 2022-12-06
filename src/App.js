@@ -10,6 +10,9 @@ import Content from './Content';
 import { onMessage } from './service/mockServer';
 
 function App() {
+  const vertical = 'bottom';
+  const horizontal = 'right';
+
   const [likedSubmissions, setLikedSubmissions] = React.useState([]);
 
   const [open, setOpen] = React.useState(false);
@@ -20,13 +23,14 @@ function App() {
     setOpen(true);
     setCurrentMessage(submission)
     const { data: { email, firstName, lastName } } = submission;
-    setCurrentMessageInfo(`${firstName} ${lastName}` + `${email}`);
+    setCurrentMessageInfo(`${firstName} ${lastName} ${email}`);
   }
 
   const handleLikeButton = () => {
     const likedMessage = { ...currentMessage };
     likedMessage.data.liked = true;
     setLikedSubmissions((prevState) => [...prevState, likedMessage]);
+    setOpen(false);
   }
 
   React.useEffect(() => {
@@ -37,7 +41,7 @@ function App() {
     <>
       <Header />
       <Container>
-        <Content />
+        <Content likedSubmissions={likedSubmissions} />
         <Snackbar
           open={open}
           autoHideDuration={5000}
@@ -52,6 +56,7 @@ function App() {
               </Button>
             </>
           }
+          anchorOrigin={{ vertical, horizontal }}
         />
       </Container>
     </>
